@@ -1,23 +1,3 @@
-# Генеративно-состязательная нейросеть (GAN) для подмены лиц
-
-Добавление состязательных и перцептуальных (VGGface) функций потерь в архитектуру автоэнкодера дипфейков.
-
-### Общее описание нейросети
-
-Алгоритм классического машинного обучения без учителя. Суть идеи состоит в комбинации двух нейросетей, при которой
-одновременно работает два алгоритма “генератор” и “дискриминатор”.
-
-**Дискриминатор**. Для распознавания используются сверточные нейронные сети (CNN). Задача дискриминатора – пытаться
-распознать созданный образ и определить ложная ли она.
-
-**Генератор**. Формирование изображений начинается с генерации произвольного шума, на котором постепенно начинают
-проступать фрагменты искомого изображения. Задача генератора – генерировать образы заданной категории.
-
-Таким образом эти две имеют состязательные отношени, при котором генератор во время обучения пытается сгенерировать
-реалистичные ложные данные для замены лица таким образом, чтобы дискриминативная сеть не смогла бы разпознать подмену
-лица. Таким образом обе сети тренируют друг друга до состояния оптимального равновесия, при котором генератор будет
-сгенерировать неотличимые от реальных данные, а дискриминатор более точно подтвердить ложность или истинность полученных
-данных.
 
 ####Обучение 
  - Для простого обучения вполне достаточно иметь 2 видео исходного и целевого лиц, а дальше алгоритмы определят лица в
@@ -49,38 +29,8 @@ GAN нейросети для подмены лиц при различных и
 
 Де
 
-### Архитектура сети
 
-![gan_arch2d](docs/images/arch/gan.png)
 
-![enc_arch3d](docs/images/arch/enc_arch3d.jpg)
-
-![dec_arch3d](docs/images/arch/dec_arch3d.jpg)
-
-![dis_arch3d](docs/images/arch/disc_arch3d.jpg)
-
-### Результаты применения подхода
-
-- **Улучшенное качество вывода:** Функция состязательных потерь улучшает качество реконструкции сгенерированных
-  изображений.
-
-### Особенности
-
-- **[VGGFace](https://github.com/rcmalli/keras-vggface) perceptual loss:** Функция перцептуальных потерь улучшает
-  направление глазных яблок, чтобы дыть более реалистичный и соответствовующий входному лицу выходной. Это также
-  сглаживает артефакты в маске сегментации, что приводит к повышению качества вывода.
-
-- **`Attention mask`:** Модель предсказывает `attention mask`, которая помогает справиться с окклюзией, устраняя
-  артефакты и создавая естественный тон кожи.
-
-- **Отслеживание/выравнивание лиц с использованием MTCNN и фильтра Калмана при преобразовании видео**:
-    - Используется сеть MTCNN для более стабильного обнаружения и надежного выравнивания лица.
-    - Фильтр Калмана сглаживает положение ограничивающей рамки (bounding) на кадрах и устраняет дрожание на заменяемом
-      лице.
-    - ![comp_FA](https://www.dropbox.com/s/kviue4065gdqfnt/comp_fa.gif?raw=1)
-
-- **Обучение с учетом глаз:** Использование высоких значений `reconstruction loss` и `edge loss` в области глаз
-  позволяет модели создавать реалистичные глаза.
 
 ## Замена частей лица
 
@@ -210,29 +160,3 @@ config = ConverterConfig(
   соответственно.
 - Во время обучения размер изображений будет изменен до 256x256.
 
-## Ссылки на используемые алгоритмы
-
-### Алгоритмы
-
-- [GANotebooks](https://github.com/tjwei/GANotebooks)
-- [Keras-GAN](https://github.com/eriklindernoren/Keras-GAN/blob/master/aae/aae.py)
-- [deep-learning-with-python-notebooks](https://github.com/fchollet/deep-learning-with-python-notebooks/blob/master/chapter12_part05_gans.ipynb "The GAN")
-- [SAGAN](https://github.com/taki0112/Self-Attention-GAN-Tensorflow)
-- [PixelShuffler layer for Keras by t-ae](https://github.com/t-ae/watch-generator-keras/blob/master/custom_layers.py)
-- [keras-contrib](https://github.com/keras-team/keras-contrib/blob/master/examples/improved_wgan.py)
-- [CycleGAN](https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix)
-- [FaceNet](https://github.com/davidsandberg/facenet)
-- [cnn_finetune](https://github.com/flyyufelix/cnn_finetune/blob/master/custom_layers/scale_layer.py)
-- [ICNR](https://github.com/kostyaev/ICNR)
-- [reddit user deepfakes' project](https://pastebin.com/hYaLNg1T)
-
-### Библиотека
-
-- Jun Fu et al. - [Dual Attention Network for Scene Segmentation](https://arxiv.org/pdf/1809.02983.pdf)
-- Han Zhang, Ian Goodfellow, Dimitris Metaxas, Augustus Odena
-  - [Self-Attention Generative Adversarial Network (SAGAN)](https://arxiv.org/pdf/1805.08318.pdf)
-- Taesung Park, Ming-Yu Liu, Ting-Chun Wang, Jun-Yan Zhu
-  - [Semantic Image Synthesis with Spatially-Adaptive Normalization (SPADE)](https://arxiv.org/abs/1903.07291)
-- Jimmy Lei Ba, Jamie Ryan Kiros, Geoffrey E. Hinton - [Layer Normalization](https://arxiv.org/abs/1607.06450)
-- Dmitry Ulyanov, Andrea Vedaldi, Victor Lempitsky
-  - [Instance Normalization: The Missing Ingredient for Fast Stylization](https://arxiv.org/abs/1607.08022)
