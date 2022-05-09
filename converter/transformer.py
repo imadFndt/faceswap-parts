@@ -98,7 +98,7 @@ class FaceTransformer:
         pass
 
     def _ae_forward_pass(self, direction):
-        ae_out = self.model.transform(self.ae_input, direction)
+        ae_out = self.model.transform(self.ae_input, direction, method='bgr')
         self.ae_output = np.squeeze(np.array([ae_out]))
         pass
 
