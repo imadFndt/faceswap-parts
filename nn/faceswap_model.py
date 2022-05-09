@@ -84,9 +84,11 @@ class FaceswapModel:
                                  self.use_self_attn,
                                  self.norm).build(decoder_shape)
 
-        self.disc_a = Discriminator(self.image_shape[0], self.use_self_attn, self.norm).build(disc_shape)
+        self.disc_a = Discriminator(
+            self.image_shape[0], self.use_self_attn, self.norm).build(disc_shape)
 
-        self.disc_b = Discriminator(self.image_shape[0], self.use_self_attn, self.norm).build(disc_shape)
+        self.disc_b = Discriminator(
+            self.image_shape[0], self.use_self_attn, self.norm).build(disc_shape)
 
         inputs = Input(shape=self.image_shape)
 
@@ -120,7 +122,8 @@ class FaceswapModel:
         masked_fake_output = alpha * bgr + (1 - alpha) * distorted_input
 
         fn_generate = K.function([distorted_input], [masked_fake_output])
-        fn_mask = K.function([distorted_input], [concatenate([alpha, alpha, alpha])])
+        fn_mask = K.function([distorted_input], [
+                             concatenate([alpha, alpha, alpha])])
         fn_abgr = K.function([distorted_input], [concatenate([alpha, bgr])])
         fn_bgr = K.function([distorted_input], [bgr])
         return (distorted_input, fake_output, alpha,
@@ -158,8 +161,10 @@ class FaceswapModel:
         )
 
         # Edge loss
-        loss_edge_gen_a = edge_loss(self.real_a, self.fake_a, self.mask_eyes_a, **loss_weights)
-        loss_edge_gen_b = edge_loss(self.real_b, self.fake_b, self.mask_eyes_b, **loss_weights)
+        loss_edge_gen_a = edge_loss(
+            self.real_a, self.fake_a, self.mask_eyes_a, **loss_weights)
+        loss_edge_gen_b = edge_loss(
+            self.real_b, self.fake_b, self.mask_eyes_b, **loss_weights)
 
         if loss_config['use_PL']:
             loss_pl_gen_a = perceptual_loss(
@@ -192,8 +197,10 @@ class FaceswapModel:
             loss_gen_b += 1e-2 * K.mean(K.abs(self.mask_b))
             pass
         else:
-            loss_gen_a += 0.1 * K.mean(K.maximum(0., loss_config['m_mask'] - self.mask_a))
-            loss_gen_b += 0.1 * K.mean(K.maximum(0., loss_config['m_mask'] - self.mask_b))
+            loss_gen_a += 0.1 * \
+                K.mean(K.maximum(0., loss_config['m_mask'] - self.mask_a))
+            loss_gen_b += 0.1 * \
+                K.mean(K.maximum(0., loss_config['m_mask'] - self.mask_b))
             pass
 
         # Alpha mask total variation loss
@@ -239,7 +246,8 @@ class FaceswapModel:
 
         self.net_gen_train_a = K.function(
             [self.distorted_a, self.real_a, self.mask_eyes_a],
-            [loss_gen_a, loss_adv_gen_a, loss_recon_gen_a, loss_edge_gen_a, loss_pl_gen_a],
+            [loss_gen_a, loss_adv_gen_a, loss_recon_gen_a,
+                loss_edge_gen_a, loss_pl_gen_a],
             updates=training_updates
         )
 
@@ -248,7 +256,8 @@ class FaceswapModel:
         ).get_updates(loss_disc_b, weights_disc_b)
 
         self.net_disc_train_b = K.function(
-            [self.distorted_b, self.real_b], [loss_disc_b], updates=training_updates
+            [self.distorted_b, self.real_b], [
+                loss_disc_b], updates=training_updates
         )
 
         training_updates = Adam(
@@ -257,7 +266,8 @@ class FaceswapModel:
 
         self.net_gen_train_b = K.function(
             [self.distorted_b, self.real_b, self.mask_eyes_b],
-            [loss_gen_b, loss_adv_gen_b, loss_recon_gen_b, loss_edge_gen_b, loss_pl_gen_b],
+            [loss_gen_b, loss_adv_gen_b, loss_recon_gen_b,
+                loss_edge_gen_b, loss_pl_gen_b],
             updates=training_updates
         )
         pass
@@ -272,7 +282,8 @@ class FaceswapModel:
             out_size7 = vggface_model.layers[-2].output
             pass
         else:
-            out_size112 = vggface_model.layers[15].output  # misnamed: the output size is 55
+            # misnamed: the output size is 55
+            out_size112 = vggface_model.layers[15].output
             out_size55 = vggface_model.layers[35].output
             out_size28 = vggface_model.layers[77].output
             out_size7 = vggface_model.layers[-3].output
@@ -330,7 +341,8 @@ class FaceswapModel:
             warped_b, target_b, bm_eyes_b = data_b
             pass
         else:
-            raise ValueError("Something's wrong with the input data generator.")
+            raise ValueError(
+                "Something's wrong with the input data generator.")
             pass
         err_gen_a = self.net_gen_train_a([warped_a, target_a, bm_eyes_a])
         err_gen_b = self.net_gen_train_b([warped_b, target_b, bm_eyes_b])
@@ -346,7 +358,8 @@ class FaceswapModel:
             warped_b, target_b, _ = data_b
             pass
         else:
-            raise ValueError("Something's wrong with the input data generator.")
+            raise ValueError(
+                "Something's wrong with the input data generator.")
         err_disc_a = self.net_disc_train_a([warped_a, target_a])
         err_disc_b = self.net_disc_train_b([warped_b, target_b])
         return err_disc_a, err_disc_b
@@ -369,10 +382,15 @@ class FaceswapModel:
                 raise ValueError(f"No such transform method `{method}`.")
             pass
         else:
-            raise ValueError(f"direction should be either AtoB or BtoA, recieved {direction}.")
+            raise ValueError(
+                f"direction should be either AtoB or BtoA, recieved {direction}.")
         pass
 
     def _transform_abgr_ab(self, image):
+        print("Image:")
+        print(image)
+        print("AbgrB:")
+        print(self.path_abgr_b)
         return self.path_abgr_b([[image]])
 
     def _transform_abgr_ba(self, image):
