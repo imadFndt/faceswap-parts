@@ -387,8 +387,8 @@ class FaceswapModel:
         pass
 
     def _transform_abgr_ab(self, image):
-        print("Image:")
-        print(image)
+        print("ImageShape:")
+        print(image.shape)
         print("AbgrB:")
         print(self.path_abgr_b)
         return self.path_abgr_b([[image]])
